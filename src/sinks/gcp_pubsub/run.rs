@@ -28,7 +28,7 @@ async fn send_pubsub_msg(
     let msg = PubsubMessage {
         data: body.into(),
         ordering_key: ordering_key.into(),
-        attributes: attributes.to_owned().into(),
+        attributes: attributes.to_owned(),
         ..Default::default()
     };
 
@@ -69,7 +69,7 @@ pub fn writer_loop(
         } else {
             ClientConfig::default()
         };
-        let client = Client::new(client_config).await?;
+        let client = Client::new(client_config.with_auth().await?).await?;
         let topic = client.topic(topic_name);
         Result::<_, crate::Error>::Ok(topic.new_publisher(None))
     })?;

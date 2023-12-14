@@ -28,7 +28,7 @@ async fn send_pubsub_msg(
     let msg = PubsubMessage {
         data: body.into(),
         ordering_key: ordering_key.into(),
-        attributes: attributes.to_owned().into(),
+        attributes: attributes.to_owned(),
         ..Default::default()
     };
 

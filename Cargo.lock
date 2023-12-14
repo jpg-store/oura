@@ -2235,6 +2235,7 @@ dependencies = [
  "elasticsearch",
  "env_logger",
  "file-rotate",
+ "google-cloud-gax",
  "google-cloud-googleapis",
  "google-cloud-pubsub",
  "hex",

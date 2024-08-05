@@ -1,4 +1,4 @@
-use elasticsearch::{params::OpType, Elasticsearch, IndexParts, http::StatusCode};
+use elasticsearch::{http::StatusCode, params::OpType, Elasticsearch, IndexParts};
 use serde::Serialize;
 use serde_json::json;
 use std::sync::Arc;

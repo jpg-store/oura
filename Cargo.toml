@@ -1,7 +1,7 @@
 [package]
 name = "oura"
 description = "The tail of Cardano"
-version = "1.9.2"
+version = "1.10.0"
 edition = "2021"
 repository = "https://github.com/txpipe/oura"
 homepage = "https://github.com/txpipe/oura"
@@ -86,5 +86,5 @@ elasticsink = ["elasticsearch", "tokio"]
 fingerprint = ["murmur3"]
 aws = ["aws-config", "aws-sdk-sqs", "aws-sdk-lambda", "aws-sdk-s3", "tokio"]
 redissink = ["redis", "tokio"]
-gcp = ["google-cloud-pubsub", "google-cloud-googleapis", "tokio", "web" ,"google-cloud-gax"]
+gcp = ["google-cloud-pubsub", "google-cloud-googleapis", "tokio", "web", "google-cloud-gax"]
 rabbitmqsink = ["lapin", "tokio"]

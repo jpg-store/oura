@@ -1,6 +1,5 @@
 use std::{collections::HashMap, sync::Arc};
 
-use google_cloud_gax::conn::Environment;
 use google_cloud_googleapis::pubsub::v1::PubsubMessage;
 use google_cloud_pubsub::{
     client::{Client, ClientConfig},
@@ -50,9 +49,6 @@ pub fn writer_loop(
     retry_policy: &retry::Policy,
     ordering_key: &str,
     attributes: &GenericKV,
-    emulator: bool,
-    emulator_endpoint: &Option<String>,
-    emulator_project_id: &Option<String>,
     utils: Arc<Utils>,
 ) -> Result<(), crate::Error> {
     let rt = tokio::runtime::Builder::new_current_thread()

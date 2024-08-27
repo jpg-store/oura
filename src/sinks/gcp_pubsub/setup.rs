@@ -16,10 +16,6 @@ pub struct Config {
     pub retry_policy: Option<retry::Policy>,
     pub ordering_key: Option<String>,
     pub attributes: Option<GenericKV>,
-    pub emulator: Option<bool>,
-    pub emulator_endpoint: Option<String>,
-    pub emulator_project_id: Option<String>,
-
     #[warn(deprecated)]
     pub credentials: Option<String>,
 }

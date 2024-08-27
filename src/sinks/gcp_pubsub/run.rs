@@ -57,16 +57,7 @@ pub fn writer_loop(
         .build()?;
 
     let publisher: Publisher = rt.block_on(async {
-        let client_config = if emulator {
-            ClientConfig {
-                project_id: Some(emulator_project_id.clone().unwrap_or_default()),
-                environment: Environment::Emulator(emulator_endpoint.clone().unwrap_or_default()),
-                ..Default::default()
-            }
-        } else {
-            ClientConfig::default()
-        };
-        let client = Client::new(client_config).await?;
+        let client = Client::new(ClientConfig::default().with_auth().await?).await?;
         let topic = client.topic(topic_name);
         Result::<_, crate::Error>::Ok(topic.new_publisher(None))
     })?;

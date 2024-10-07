@@ -5,6 +5,11 @@
 //! initial point from where it should start reading. A sink should use this
 //! utility to persist the position once a block has been processed.
 
+use r2d2_redis::{
+    r2d2::{self, Pool},
+    redis::Commands,
+    RedisConnectionManager,
+};
 use std::{
     sync::RwLock,
     time::{Duration, Instant},
@@ -27,15 +32,24 @@ pub struct FileConfig {
     pub path: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct RedisConfig {
+    pub url: String,
+    pub key: String,
+}
+
 /// A cursor provider that uses the file system as the source for persistence
 pub(crate) struct FileStorage(FileConfig);
 
 /// An ephemeral cursor that lives only in memory
 pub(crate) struct MemoryStorage(PointArg);
 
+pub(crate) struct RedisStorage(RedisConfig);
+
 enum Storage {
     File(FileStorage),
     Memory(MemoryStorage),
+    Redis(RedisStorage),
 }
 
 impl CanStore for Storage {
@@ -43,6 +57,7 @@ impl CanStore for Storage {
         match self {
             Storage::File(x) => x.read_cursor(),
             Storage::Memory(x) => x.read_cursor(),
+            Storage::Redis(x) => x.read_cursor(),
         }
     }
 
@@ -50,6 +65,7 @@ impl CanStore for Storage {
         match self {
             Storage::File(x) => x.write_cursor(point),
             Storage::Memory(x) => x.write_cursor(point),
+            Storage::Redis(x) => x.write_cursor(point),
         }
     }
 }
@@ -59,6 +75,7 @@ impl CanStore for Storage {
 pub enum Config {
     File(FileConfig),
     Memory(PointArg),
+    Redis(RedisConfig),
 }
 
 #[derive(Clone)]
@@ -80,6 +97,7 @@ impl Provider {
             storage: match config {
                 Config::File(x) => Storage::File(FileStorage(x)),
                 Config::Memory(x) => Storage::Memory(MemoryStorage(x)),
+                Config::Redis(x) => Storage::Redis(RedisStorage(x)),
             },
         }
     }
@@ -165,6 +183,34 @@ impl CanStore for MemoryStorage {
 
     fn write_cursor(&self, _point: PointArg) -> Result<(), Error> {
         // No operation, memory storage doesn't persist anything
+        Ok(())
+    }
+}
+
+impl RedisStorage {
+    pub fn get_pool(&self) -> Result<Pool<RedisConnectionManager>, Error> {
+        let manager = RedisConnectionManager::new(self.0.url.clone())?;
+        let pool = r2d2::Pool::builder().build(manager)?;
+        Ok(pool)
+    }
+}
+
+impl CanStore for RedisStorage {
+    fn read_cursor(&self) -> Result<PointArg, Error> {
+        let pool = self.get_pool()?;
+        let mut conn = pool.get()?;
+        // let data: String = conn.get("oura-cursor")?;
+        let data: String = conn.get(self.0.key.clone())?;
+        let point: PointArg = serde_json::from_str(&data)?;
+        Ok(point)
+    }
+
+    fn write_cursor(&self, point: PointArg) -> Result<(), Error> {
+        let pool = self.get_pool()?;
+        let mut conn = pool.get()?;
+        let data_to_write = serde_json::to_string(&point)?;
+        // conn.set("oura-cursor", data_to_write)?;
+        conn.set(self.0.key.clone(), data_to_write)?;
         Ok(())
     }
 }

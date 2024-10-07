@@ -1,7 +1,7 @@
 [package]
 name = "oura"
 description = "The tail of Cardano"
-version = "1.10.1"
+version = "1.11.0"
 edition = "2021"
 repository = "https://github.com/txpipe/oura"
 homepage = "https://github.com/txpipe/oura"
@@ -37,6 +37,8 @@ strum_macros = "0.26.4"
 prometheus_exporter = { version = "0.8.5", default-features = false }
 unicode-truncate = "0.2.0"
 time = "0.3.36"
+#TODO: put this under a feature
+r2d2_redis = { version = "0.14.0" }
 
 # feature logs
 file-rotate = { version = "0.7.1", optional = true }
@@ -76,6 +78,7 @@ google-cloud-googleapis = { version = "0.15.0", optional = true }
 # features: rabbitmqsink
 lapin = { version = "2.1.1", optional = true }
 
+
 [features]
 default = []
 web = ["reqwest"]
@@ -88,3 +91,4 @@ aws = ["aws-config", "aws-sdk-sqs", "aws-sdk-lambda", "aws-sdk-s3", "tokio"]
 redissink = ["redis", "tokio"]
 gcp = ["google-cloud-pubsub", "google-cloud-googleapis", "tokio", "web", "google-cloud-gax"]
 rabbitmqsink = ["lapin", "tokio"]
+

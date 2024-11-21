@@ -32,7 +32,7 @@ FROM debian:bookworm-slim as release
 
 RUN apt-get update && \
     apt-get upgrade -yq && \
-    apt-get install -yq --no-install-recommends ca-certificates && \
+    apt-get install -yq --no-install-recommends ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /oura /usr/local/bin/oura

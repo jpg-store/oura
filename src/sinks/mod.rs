@@ -1,4 +1,9 @@
-use gasket::runtime::Tether;
+use gasket::{
+    framework::Stage,
+    messaging::{InputPort, OutputPort},
+    runtime::Tether,
+};
+use pallas::network::miniprotocols::Point;
 use serde::Deserialize;
 
 use crate::framework::*;
@@ -41,13 +46,37 @@ mod elasticsearch;
 #[cfg(feature = "sql")]
 mod sql_db;
 
-pub enum Bootstrapper {
+pub trait Sink {
+    fn get_input(&mut self) -> &mut InputPort<ChainEvent>;
+    fn get_cursor(&mut self) -> &mut OutputPort<Point>;
+    fn spawn(self, policy: gasket::runtime::Policy) -> Tether;
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DummySink {}
+
+impl Sink for DummySink {
+    fn get_input(&mut self) -> &mut InputPort<ChainEvent> {
+        todo!()
+    }
+
+    fn get_cursor(&mut self) -> &mut OutputPort<Point> {
+        todo!()
+    }
+
+    fn spawn(self, policy: gasket::runtime::Policy) -> Tether {
+        todo!()
+    }
+}
+
+pub enum Bootstrapper<S: Sink> {
     Terminal(terminal::Stage),
     Stdout(stdout::Stage),
     Noop(noop::Stage),
     Assert(assert::Stage),
     FileRotate(file_rotate::Stage),
     WebHook(webhook::Stage),
+    Custom(S),
 
     #[cfg(feature = "rabbitmq")]
     Rabbitmq(rabbitmq::Stage),
@@ -80,7 +109,7 @@ pub enum Bootstrapper {
     SqlDb(sql_db::Stage),
 }
 
-impl Bootstrapper {
+impl<S: Sink> Bootstrapper<S> {
     pub fn borrow_input(&mut self) -> &mut SinkInputPort {
         match self {
             Bootstrapper::Terminal(p) => &mut p.input,
@@ -89,6 +118,7 @@ impl Bootstrapper {
             Bootstrapper::Assert(p) => &mut p.input,
             Bootstrapper::FileRotate(p) => &mut p.input,
             Bootstrapper::WebHook(p) => &mut p.input,
+            Bootstrapper::Custom(p) => p.get_input(),
 
             #[cfg(feature = "rabbitmq")]
             Bootstrapper::Rabbitmq(p) => &mut p.input,
@@ -130,6 +160,7 @@ impl Bootstrapper {
             Bootstrapper::Assert(p) => &mut p.cursor,
             Bootstrapper::FileRotate(p) => &mut p.cursor,
             Bootstrapper::WebHook(p) => &mut p.cursor,
+            Bootstrapper::Custom(p) => p.get_cursor(),
 
             #[cfg(feature = "rabbitmq")]
             Bootstrapper::Rabbitmq(p) => &mut p.cursor,
@@ -171,6 +202,7 @@ impl Bootstrapper {
             Bootstrapper::Assert(x) => gasket::runtime::spawn_stage(x, policy),
             Bootstrapper::FileRotate(x) => gasket::runtime::spawn_stage(x, policy),
             Bootstrapper::WebHook(x) => gasket::runtime::spawn_stage(x, policy),
+            Bootstrapper::Custom(x) => x.spawn(policy),
 
             #[cfg(feature = "rabbitmq")]
             Bootstrapper::Rabbitmq(x) => gasket::runtime::spawn_stage(x, policy),
@@ -207,13 +239,14 @@ impl Bootstrapper {
 
 #[derive(Deserialize)]
 #[serde(tag = "type")]
-pub enum Config {
+pub enum Config<S: Sink> {
     Terminal(terminal::Config),
     Stdout(stdout::Config),
     Noop(noop::Config),
     Assert(assert::Config),
     FileRotate(file_rotate::Config),
     WebHook(webhook::Config),
+    Custom(S),
 
     #[cfg(feature = "rabbitmq")]
     Rabbitmq(rabbitmq::Config),
@@ -246,8 +279,8 @@ pub enum Config {
     SqlDb(sql_db::Config),
 }
 
-impl Config {
-    pub fn bootstrapper(self, ctx: &Context) -> Result<Bootstrapper, Error> {
+impl<S: Sink> Config<S> {
+    pub fn bootstrapper(self, ctx: &Context) -> Result<Bootstrapper<S>, Error> {
         match self {
             Config::Terminal(c) => Ok(Bootstrapper::Terminal(c.bootstrapper(ctx)?)),
             Config::Stdout(c) => Ok(Bootstrapper::Stdout(c.bootstrapper(ctx)?)),
@@ -255,6 +288,7 @@ impl Config {
             Config::Assert(c) => Ok(Bootstrapper::Assert(c.bootstrapper(ctx)?)),
             Config::FileRotate(c) => Ok(Bootstrapper::FileRotate(c.bootstrapper(ctx)?)),
             Config::WebHook(c) => Ok(Bootstrapper::WebHook(c.bootstrapper(ctx)?)),
+            Config::Custom(c) => Ok(Bootstrapper::Custom(c)),
 
             #[cfg(feature = "rabbitmq")]
             Config::Rabbitmq(c) => Ok(Bootstrapper::Rabbitmq(c.bootstrapper(ctx)?)),

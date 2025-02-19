@@ -1,6 +1,10 @@
-
+use crate::{
+    cursor, filters,
+    framework::*,
+    sinks::{self, Sink},
+    sources,
+};
 use gasket::daemon::Daemon;
-use crate::{cursor, filters, framework::*, sinks, sources};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
@@ -10,10 +14,10 @@ pub struct MetricsConfig {
 }
 
 #[derive(Deserialize)]
-pub struct ConfigRoot {
+pub struct ConfigRoot<S: Sink> {
     pub source: sources::Config,
     pub filters: Option<Vec<filters::Config>>,
-    pub sink: sinks::Config,
+    pub sink: sinks::Config<S>,
     pub intersect: IntersectConfig,
     pub finalize: Option<FinalizeConfig>,
     pub chain: Option<ChainConfig>,
@@ -22,7 +26,7 @@ pub struct ConfigRoot {
     pub metrics: Option<MetricsConfig>,
 }
 
-impl ConfigRoot {
+impl<S: Sink + for<'de> Deserialize<'de>> ConfigRoot<S> {
     pub fn new(explicit_file: &Option<std::path::PathBuf>) -> Result<Self, config::ConfigError> {
         let mut s = config::Config::builder();
 
@@ -61,10 +65,10 @@ fn define_gasket_policy(config: Option<&gasket::retries::Policy>) -> gasket::run
     }
 }
 
-fn connect_stages(
+fn connect_stages<S: Sink>(
     mut source: sources::Bootstrapper,
     mut filters: Vec<filters::Bootstrapper>,
-    mut sink: sinks::Bootstrapper,
+    mut sink: sinks::Bootstrapper<S>,
     mut cursor: cursor::Bootstrapper,
     policy: gasket::runtime::Policy,
 ) -> Result<Daemon, Error> {
@@ -91,7 +95,7 @@ fn connect_stages(
     Ok(runtime)
 }
 
-pub fn run_daemon(config: ConfigRoot) -> Result<Daemon, Error> {
+pub fn run_daemon<S: Sink>(config: ConfigRoot<S>) -> Result<Daemon, Error> {
     let chain = config.chain.unwrap_or_default();
     let intersect = config.intersect;
     let finalize = config.finalize;
@@ -118,4 +122,3 @@ pub fn run_daemon(config: ConfigRoot) -> Result<Daemon, Error> {
     let daemon = connect_stages(source, filters, sink, cursor, retries)?;
     Ok(daemon)
 }
-

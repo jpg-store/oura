@@ -1,9 +1,9 @@
 use gasket::daemon::Daemon;
-use oura::framework::*;
+use oura::daemon::{run_daemon, ConfigRoot, MetricsConfig};
+use oura::{framework::*, sinks::DummySink};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tracing::info;
-use oura::daemon::{run_daemon, ConfigRoot, MetricsConfig};
 
 use crate::console;
 
@@ -42,7 +42,7 @@ pub fn run(args: &Args) -> Result<(), Error> {
         setup_tracing();
     }
 
-    let config = ConfigRoot::new(&args.config).map_err(Error::config)?;
+    let config: ConfigRoot<DummySink> = ConfigRoot::new(&args.config).map_err(Error::config)?;
     let metrics = config.metrics.clone();
 
     let daemon = run_daemon(config)?;

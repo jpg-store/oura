@@ -60,11 +60,17 @@ pub fn run(args: &Args) -> Result<(), Error> {
     let prometheus = tokio_rt.spawn(serve_prometheus(daemon.clone(), metrics));
     let tui = tokio_rt.spawn(console::render(daemon.clone(), args.tui));
 
+    let daemon = Arc::try_unwrap(daemon).map_err(|daemon| {
+        Error::Custom(format!(
+            "daemon still has {} references",
+            Arc::strong_count(&daemon)
+        ))
+    })?;
+
     daemon.block();
 
     info!("oura is stopping");
 
-    daemon.teardown();
     prometheus.abort();
     tui.abort();
 

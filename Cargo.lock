@@ -2714,24 +2714,24 @@ dependencies = [
 
 [[package]]
 name = "gasket"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07b0e0817f9ef592c3a1788550b66bccaa8d58c7a52f1ed9996828130158bf5d"
+version = "0.9.0"
+source = "git+https://github.com/construkts/gasket-rs.git#c6f60b81c7213f536eeb62e4ad738ed0da328c17"
 dependencies = [
  "async-trait",
  "crossbeam",
  "gasket-derive",
  "serde",
+ "signal-hook",
  "thiserror 1.0.69",
  "tokio",
+ "tokio-util",
  "tracing",
 ]
 
 [[package]]
 name = "gasket-derive"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f280aa9c78c708fddd07172482e39e9e6cc8a4d353b76de811d7b06c791245b"
+version = "0.9.0"
+source = "git+https://github.com/construkts/gasket-rs.git#c6f60b81c7213f536eeb62e4ad738ed0da328c17"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2740,9 +2740,8 @@ dependencies = [
 
 [[package]]
 name = "gasket-prometheus"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8582f2a30cebd31ebc3d88ce3eeeb96cf9f8d466e79f233474b52d67f4373f5c"
+version = "0.9.0"
+source = "git+https://github.com/construkts/gasket-rs.git#c6f60b81c7213f536eeb62e4ad738ed0da328c17"
 dependencies = [
  "gasket",
  "prometheus_exporter_base",

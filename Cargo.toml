@@ -1,7 +1,7 @@
 [package]
 name = "oura"
 description = "The tail of Cardano"
-version = "1.11.3"
+version = "1.11.4"
 edition = "2021"
 repository = "https://github.com/txpipe/oura"
 homepage = "https://github.com/txpipe/oura"
@@ -12,15 +12,18 @@ authors = ["Santiago Carmuega <santiago@carmuega.me>"]
 
 
 [dependencies]
-pallas-multiplexer = "0.18.3"
-pallas-miniprotocols = "0.18.3"
+pallas-multiplexer = "0.18.5"
+pallas-miniprotocols = "0.18.5"
+
 pallas-primitives = "0.30.1"
 pallas-traverse = "0.30.1"
 pallas-addresses = "0.30.1"
 pallas-codec = "0.30.1"
 pallas-crypto = "0.30.1"
+
 # pallas = { git = "https://github.com/txpipe/pallas" }
 # pallas = { path = "../pallas/pallas" }
+
 hex = "0.4.3"
 bech32 = "0.9.1"
 clap = "3.2.25"
@@ -29,7 +32,11 @@ env_logger = "0.10.1"
 crossterm = "0.27"
 merge = "0.1.0"
 webpki = ">=0.22.2"
-config = { version = "0.13.4", default-features = false, features = ["toml", "yaml", "json"] }
+config = { version = "0.13.4", default-features = false, features = [
+  "toml",
+  "yaml",
+  "json",
+] }
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = { version = "1.0.108", features = ["arbitrary_precision"] }
 strum = "0.26.3"
@@ -44,7 +51,10 @@ r2d2_redis = { version = "0.14.0" }
 file-rotate = { version = "0.7.1", optional = true }
 
 # feature: webhook
-reqwest = { version = "0.12.5", optional = true, features = ["blocking", "json"] }
+reqwest = { version = "0.12.5", optional = true, features = [
+  "blocking",
+  "json",
+] }
 
 # feature: kafkasink
 kafka = { version = "0.10.0", optional = true }
@@ -71,8 +81,10 @@ openssl = { version = "0.10", optional = true, features = ["vendored"] }
 redis = { version = "0.24.0", optional = true, features = ["tokio-comp"] }
 
 # features: gcp
-google-cloud-gax = {version ="0.19.0", optional = true }
-google-cloud-pubsub = { version = "0.28.0", optional = true, features = ["google-cloud-auth"] }
+google-cloud-gax = { version = "0.19.0", optional = true }
+google-cloud-pubsub = { version = "0.28.0", optional = true, features = [
+  "google-cloud-auth",
+] }
 google-cloud-googleapis = { version = "0.15.0", optional = true }
 
 # features: rabbitmqsink
@@ -89,6 +101,11 @@ elasticsink = ["elasticsearch", "tokio"]
 fingerprint = ["murmur3"]
 aws = ["aws-config", "aws-sdk-sqs", "aws-sdk-lambda", "aws-sdk-s3", "tokio"]
 redissink = ["redis", "tokio"]
-gcp = ["google-cloud-pubsub", "google-cloud-googleapis", "tokio", "web", "google-cloud-gax"]
+gcp = [
+  "google-cloud-pubsub",
+  "google-cloud-googleapis",
+  "tokio",
+  "web",
+  "google-cloud-gax",
+]
 rabbitmqsink = ["lapin", "tokio"]
-

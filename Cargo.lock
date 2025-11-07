@@ -1581,15 +1581,15 @@ dependencies = [
 
 [[package]]
 name = "google-cloud-gax"
-version = "0.19.2"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de13e62d7e0ffc3eb40a0113ddf753cf6ec741be739164442b08893db4f9bfca"
+checksum = "9c3eaaad103912825594d674a4b1e556ccbb05a13a6cac17dcfd871997fb760a"
 dependencies = [
  "google-cloud-token",
  "http 1.3.1",
  "thiserror 1.0.69",
  "tokio",
- "tokio-retry2",
+ "tokio-retry",
  "tonic",
  "tower 0.4.13",
  "tracing",
@@ -4218,12 +4218,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "tokio-retry2"
-version = "0.5.8"
+name = "tokio-retry"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a0a122635e32bd827df297f311ca5e0292636bbd82f67ff84a4bedeab06dbeb"
+checksum = "7f57eb36ecbe0fc510036adff84824dd3c24bb781e21bfa67b69d556aa85214f"
 dependencies = [
  "pin-project",
+ "rand 0.8.5",
  "tokio",
 ]
 
